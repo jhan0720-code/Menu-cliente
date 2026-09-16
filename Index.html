@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>El Escondite – Menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<style>
+:root {
+  --bg: #0d0f14;
+  --card: #161920;
+  --border: #222736;
+  --accent: #ff7a00;
+  --accent2: #ff9a40;
+  --text: #e8ecf5;
+  --muted: #6b7a9e;
+  --green: #22c55e;
+  --surface: #1a1f2e;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── HERO ── */
+.hero {
+  position: relative;
+  padding: 22px 20px 16px;
+  background: linear-gradient(160deg, #1a1220 0%, #0d0f14 60%);
+  overflow: hidden;
+  text-align: center;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  width: 260px; height: 260px;
+  background: radial-gradient(circle, rgba(255,122,0,.18) 0%, transparent 70%);
+  top: -60px; right: -60px;
+  border-radius: 50%;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+}
+.logo-line {
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 38px;
+  font-weight: 900;
+  line-height: 1.05;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+.hero-title span { color: var(--accent); }
+.hero-sub {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(34,197,94,.12);
+  border: 1px solid rgba(34,197,94,.25);
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 99px;
+  margin-top: 14px;
+}
+.status-dot {
+  width: 7px; height: 7px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+
+/* ── CAT BAR ── */
+/* ── LAYOUT PRINCIPAL con sidebar ── */
+.main-layout {
+  display: flex;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.hero-inside {
+  /* hero is now inside content-scroll */
+}
+
+/* Sidebar categorías vertical */
+.cat-wrap {
+  display: flex;
+  flex-direction: column;
+  width: 84px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  padding: 10px 7px;
+  gap: 6px;
+  scrollbar-width: none;
+  position: sticky;
+  top: 0;
+  min-height: 100vh;
+  align-self: flex-start;
+}
+.cat-wrap::-webkit-scrollbar { display: none; }
+
+.cat-btn {
+  padding: 10px 6px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: normal;
+  word-break: break-word;
+  text-align: center;
+  line-height: 1.3;
+  width: 100%;
+  transition: all .2s;
+}
+.cat-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* Contenido principal desplazable */
+.content-scroll {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.content-scroll::-webkit-scrollbar { display: none; }
+
+/* ── ITEMS ── */
+.items-wrap { padding: 16px 14px 140px; }
+.cat-section { margin-bottom: 28px; }
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+  padding-left: 2px;
+}
+
+.item-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  position: relative;
+  overflow: hidden;
+}
+.item-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--accent);
+  transform: scaleY(0);
+  transition: transform .2s;
+  border-radius: 3px 0 0 3px;
+}
+.item-card:active { background: var(--surface); border-color: var(--accent); }
+.item-card:active::before { transform: scaleY(1); }
+.item-card.in-cart { border-color: rgba(255,122,0,.4); background: rgba(255,122,0,.04); }
+.item-card.in-cart::before { transform: scaleY(1); }
+.item-emoji { font-size: 36px; min-width: 44px; text-align: center; }
+.item-thumb {
+  width: 64px; height: 64px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.item-info { flex: 1; }
+.item-name { font-size: 15px; font-weight: 600; line-height: 1.3; margin-bottom: 3px; }
+.item-price { font-size: 16px; font-weight: 700; color: var(--accent); }
+.add-btn {
+  width: 36px; height: 36px;
+  background: var(--accent);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: transform .15s;
+}
+.add-btn:active { transform: scale(.88); }
+.qty-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 4px 8px;
+}
+.qbtn {
+  background: none; border: none;
+  color: var(--text); font-size: 20px;
+  cursor: pointer; padding: 0;
+  width: 24px; text-align: center;
+  line-height: 1;
+}
+.qnum { font-size: 15px; font-weight: 700; min-width: 18px; text-align: center; color: var(--accent); }
+
+/* ── LOADING ── */
+.loader {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 60px 20px;
+  gap: 14px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── CART BAR ── */
+.cart-bar {
+  position: fixed;
+  bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  padding: 12px 16px 20px;
+  background: linear-gradient(0deg, #0d0f14 60%, transparent);
+  z-index: 100;
+  pointer-events: none;
+}
+.cart-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--accent);
+  border: none;
+  border-radius: 14px;
+  padding: 14px 18px;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  pointer-events: all;
+  box-shadow: 0 8px 30px rgba(255,122,0,.4);
+  transition: transform .15s;
+}
+.cart-btn:active { transform: scale(.97); }
+.cart-count {
+  background: rgba(255,255,255,.25);
+  border-radius: 99px;
+  padding: 3px 10px;
+  font-size: 13px;
+}
+
+/* ── MODAL ── */
+.modal-bg {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.8);
+  z-index: 200;
+  align-items: flex-end;
+  justify-content: center;
+  backdrop-filter: blur(3px);
+}
+.modal-bg.show { display: flex; }
+.modal {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px 24px 0 0;
+  padding: 8px 0 0;
+  width: 100%; max-width: 480px;
+  max-height: 92vh;
+  overflow-y: auto;
+  animation: slideUp .3s ease;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-handle {
+  width: 40px; height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 0 auto 18px;
+}
+.modal-inner { padding: 0 20px 32px; }
+.modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.cart-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.cart-item:last-child { border-bottom: none; }
+.ci-info { flex: 1; }
+.ci-name { font-size: 14px; font-weight: 600; }
+.ci-price { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.ci-total { font-weight: 700; color: var(--accent); font-size: 14px; min-width: 70px; text-align: right; }
+
+.total-box {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 16px;
+  margin: 16px 0;
+}
+.t-row {
+  display: flex; justify-content: space-between;
+  font-size: 14px; color: var(--muted); padding: 4px 0;
+}
+.t-row.grand {
+  border-top: 1px solid var(--border);
+  margin-top: 8px; padding-top: 12px;
+  font-size: 19px; font-weight: 700; color: var(--text);
+}
+.t-row.grand span:last-child { color: var(--accent); }
+
+.field-label {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: var(--muted); margin-bottom: 8px;
+}
+.field-inp {
+  width: 100%;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 13px 16px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  outline: none;
+  margin-bottom: 14px;
+  transition: border-color .2s;
+}
+.field-inp:focus { border-color: var(--accent); }
+.field-inp::placeholder { color: var(--muted); }
+
+.btn-primary {
+  width: 100%;
+  padding: 15px;
+  background: var(--accent);
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+.btn-secondary {
+  width: 100%;
+  padding: 12px;
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+/* ── SUCCESS ── */
+
+.location-box {
+  margin: 14px 0 6px;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 14px;
+  background: rgba(255,255,255,.035);
+}
+.location-status { font-size: 12px; color: var(--muted); margin-top: 7px; line-height: 1.35; }
+.btn-location, .btn-whatsapp {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-weight: 800;
+  cursor: pointer;
+  font-size: 14px;
+}
+.btn-location { background: rgba(255,255,255,.08); color: #fff; }
+.btn-location:disabled { opacity: .6; cursor: wait; }
+.btn-whatsapp { background: #25D366; color: #fff; margin-top: 10px; }
+.btn-whatsapp:hover { filter: brightness(1.05); }
+.success-wa { max-width: 280px; margin: 10px auto 0; display:block; }
+.success-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+  min-height: 80vh;
+}
+.success-screen.show { display: flex; }
+.success-ico {
+  font-size: 72px;
+  margin-bottom: 20px;
+  animation: pop .5s cubic-bezier(.36,.07,.19,.97);
+}
+@keyframes pop { 0%{transform:scale(0)} 70%{transform:scale(1.2)} 100%{transform:scale(1)} }
+.success-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; font-weight: 900;
+  margin-bottom: 10px;
+}
+.success-sub { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 28px; }
+.order-id {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 20px; font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 28px;
+  letter-spacing: 2px;
+}
+
+/* ── MÉTODO DE PAGO ── */
+.pay-section-label {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: var(--muted); margin-bottom: 10px;
+}
+.pay-methods {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; margin-bottom: 14px;
+}
+.pay-opt {
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  padding: 14px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.pay-opt:active { transform: scale(0.97); }
+.pay-opt.selected {
+  border-color: var(--accent);
+  background: rgba(255,122,0,.1);
+}
+.pay-opt.selected.tarjeta {
+  border-color: #3b82f6;
+  background: rgba(59,130,246,.1);
+}
+.pay-opt-icon { font-size: 24px; display: block; margin-bottom: 6px; }
+.pay-opt-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.pay-opt-sub  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.pay-opt.tarjeta.selected .pay-opt-name { color: #3b82f6; }
+.pay-opt.tarjeta.selected .pay-opt-sub  { color: #3b82f6; }
+.surcharge-notice {
+  display: none;
+  background: rgba(59,130,246,.12);
+  border: 1px solid rgba(59,130,246,.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #3b82f6;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 14px;
+}
+.surcharge-notice.show { display: block; }
+.t-row.surcharge span:last-child { color: #3b82f6; font-weight: 700; }
+
+/* ── EMPTY ── */
+.empty-menu {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+.empty-menu .eico { font-size: 48px; margin-bottom: 12px; }
+.empty-menu p { font-size: 14px; line-height: 1.6; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 100px; left: 50%;
+  transform: translateX(-50%) translateY(30px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 11px 20px;
+  border-radius: 99px;
+  font-size: 13px; font-weight: 600;
+  z-index: 999;
+  opacity: 0;
+  transition: all .3s;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── VISUAL REFRESH + ACCESSIBILITY ── */
+:root{
+  --accent:#ff6b00;
+  --accent2:#ff9d4d;
+  --text:#f5f7fb;
+  --muted:#8e99ad;
+  --card:#151922;
+  --surface:#1b2130;
+  --border:#293044;
+}
+html{background:var(--bg);scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(circle at 85% -5%,rgba(255,107,0,.11),transparent 28%),
+    var(--bg);
+}
+button,input{touch-action:manipulation}
+button:focus-visible,input:focus-visible{
+  outline:2px solid var(--accent2);
+  outline-offset:2px;
+}
+.hero{
+  padding:30px 20px 22px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.hero-title{font-size:42px;letter-spacing:-.7px;text-shadow:0 8px 30px rgba(0,0,0,.25)}
+.hero-sub{max-width:330px;margin-inline:auto}
+.status-pill{box-shadow:0 4px 18px rgba(34,197,94,.08)}
+.cat-wrap{
+  background:rgba(21,25,34,.94);
+  backdrop-filter:blur(14px);
+}
+.cat-btn{
+  min-height:58px;
+  border-radius:13px;
+  border-color:#252c3c;
+}
+.cat-btn.active{box-shadow:0 6px 18px rgba(255,107,0,.22)}
+.items-wrap{padding:18px 14px 150px}
+.section-label{
+  position:sticky;top:0;z-index:4;
+  padding:8px 2px 10px;
+  background:linear-gradient(var(--bg) 75%,transparent);
+  backdrop-filter:blur(5px);
+}
+.item-card{
+  min-height:92px;
+  border-radius:17px;
+  padding:13px;
+  box-shadow:0 5px 18px rgba(0,0,0,.12);
+}
+.item-card:hover{border-color:#394257;background:#181d27}
+.item-thumb{width:72px;height:72px;border-radius:13px}
+.item-emoji{
+  width:64px;height:64px;min-width:64px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:14px;background:var(--surface);
+  font-size:32px;
+}
+.item-name{font-size:15.5px}
+.item-price{font-size:17px;margin-top:5px}
+.add-btn{box-shadow:0 5px 14px rgba(255,107,0,.2)}
+.qty-ctrl{border:1px solid var(--border)}
+.qbtn{min-height:30px}
+.cart-bar{padding-bottom:max(14px,env(safe-area-inset-bottom))}
+.cart-btn{
+  border-radius:17px;
+  background:linear-gradient(135deg,var(--accent),#ff7f22);
+  box-shadow:0 10px 32px rgba(255,107,0,.28);
+}
+.modal-bg{background:rgba(4,6,10,.82);backdrop-filter:blur(7px)}
+.modal{box-shadow:0 -12px 50px rgba(0,0,0,.35)}
+.modal-handle{background:#465066}
+.field-inp{min-height:48px}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#ff7f22);box-shadow:0 7px 20px rgba(255,107,0,.18)}
+.empty-menu{min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+@media (min-width:700px){
+  body{max-width:900px}
+  .main-layout{max-width:900px;margin:auto}
+  .cart-bar{max-width:900px}
+  .modal{max-width:560px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+
+/* ── SEGUIMIENTO DE PEDIDO DEL CLIENTE ── */
+.order-status-chip {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 150;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: rgba(59,130,246,.16);
+  border: 1px solid rgba(59,130,246,.4);
+  color: #6fa8ff;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 9px 14px;
+  border-radius: 99px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,.4);
+  backdrop-filter: blur(6px);
+}
+.order-status-dot {
+  width: 6px; height: 6px;
+  background: #6fa8ff;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+  flex-shrink: 0;
+}
+
+.edit-order-banner {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: rgba(59,130,246,.12);
+  border-bottom: 1px solid rgba(59,130,246,.35);
+  padding: 12px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 60;
+}
+.edit-order-banner-title {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+  color: #6fa8ff;
+}
+.edit-order-banner-actions {
+  display: flex;
+  gap: 8px;
+}
+.edit-order-banner-actions button {
+  border: none;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.eob-cancel { background: rgba(239,68,68,.15); color: #ef4444; }
+.eob-save { background: var(--accent); color: #fff; }
+
+.order-status-items .cart-item { padding: 10px 0; }
+.order-status-label {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 99px;
+  margin-bottom: 14px;
+}
+.order-status-label.pendiente { background: rgba(234,179,8,.16); color: #eab308; }
+.order-status-label.en_cobro { background: rgba(59,130,246,.15); color: #3b82f6; }
+.order-status-label.completado { background: rgba(34,197,94,.15); color: #22c55e; }
+.order-status-label.pagado { background: rgba(107,122,158,.18); color: #9ca7c2; }
+
+</style>
+</head>
+<body>
+
+<!-- CHIP DE PEDIDO EN CURSO -->
+<div class="order-status-chip" id="orderStatusChip" onclick="openOrderStatus()">
+  <span class="order-status-dot"></span>
+  <span id="orderStatusText">Pedido en curso</span>
+</div>
+
+<!-- BANNER DE EDICIÓN DE PEDIDO -->
+<div class="edit-order-banner" id="editOrderBanner">
+  <div class="edit-order-banner-title">Editando tu pedido pendiente</div>
+  <div class="edit-order-banner-actions">
+    <button type="button" class="eob-cancel" onclick="cancelEditingOrder()">Cancelar</button>
+    <button type="button" class="eob-save" onclick="openCart()">Ver / guardar</button>
+  </div>
+</div>
+
+<!-- LAYOUT PRINCIPAL -->
+<div class="main-layout">
+
+  <!-- SIDEBAR CATEGORÍAS -->
+  <div class="cat-wrap" id="catWrap" style="display:none"></div>
+
+  <!-- CONTENIDO DESPLAZABLE -->
+  <div class="content-scroll">
+    <div class="hero" id="heroSection">
+      <div class="logo-line">El Escondite</div>
+      <div class="hero-title">Nuestro<br><span>Menú</span></div>
+      <div class="hero-sub">Elige tus favoritos y haz tu pedido directo desde aqui.</div>
+    </div>
+    <div id="mainContent">
+      <div class="loader" id="loader">
+        <div class="spinner"></div>
+        Cargando menu...
+      </div>
+      <div class="items-wrap" id="itemsWrap" style="display:none"></div>
+      <div class="empty-menu" id="emptyMenu" style="display:none">
+        <div class="eico">🍽️</div>
+        <p>El menu esta vacio por ahora.<br>Vuelve pronto.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SUCCESS -->
+<div class="success-screen" id="successScreen">
+  <div class="success-ico">🎉</div>
+  <div class="success-title">¡Pedido enviado!</div>
+  <p class="success-sub">Tu pedido fue recibido.<br>En breve lo estaremos preparando.</p>
+  <div class="order-id" id="successOrderId">#000</div>
+  <button class="btn-secondary" onclick="openOrderStatus()" style="max-width:280px">Ver estado / editar mi pedido</button>
+  <button class="btn-whatsapp success-wa" onclick="openWhatsApp(lastWhatsAppMessage)">💬 Hablar por WhatsApp sobre mi pedido</button>
+  <button class="btn-primary" onclick="resetApp()" style="max-width:280px">Hacer otro pedido</button>
+</div>
+
+<!-- CART BUTTON -->
+<div class="cart-bar" id="cartBar" style="display:none">
+  <button class="cart-btn" onclick="openCart()">
+    <span>🛒 Ver pedido</span>
+    <span class="cart-count" id="cartCount">0 items</span>
+  </button>
+</div>
+
+<!-- CART MODAL -->
+<div class="modal-bg" id="cartModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-inner">
+      <div class="modal-title">Tu Pedido</div>
+      <div id="cartItemsList"></div>
+      <div class="total-box">
+        <div class="t-row"><span>Items</span><span id="cartItemCount">0</span></div>
+        <div class="t-row surcharge" id="surchargeRow" style="display:none"><span>💳 Recargo tarjeta (5%)</span><span id="surchargeAmt">RD$ 0</span></div>
+        <div class="t-row grand"><span>Total</span><span id="cartTotal">RD$ 0</span></div>
+      </div>
+
+      <div class="field-label">Tu nombre *</div>
+      <input class="field-inp" id="clienteName" type="text" placeholder="Ej: Maria Garcia" maxlength="40">
+
+      <div class="field-label">Nota especial (opcional)</div>
+      <input class="field-inp" id="orderNote" type="text" placeholder="Sin cebolla, extra salsa..." maxlength="160">
+
+      <div class="location-box">
+        <button type="button" class="btn-location" id="locationBtn" onclick="getCustomerLocation()">📍 Compartir mi ubicación actual</button>
+        <div class="location-status" id="locationStatus">Opcional. Solo se solicitará permiso cuando tú pulses el botón.</div>
+      </div>
+
+      <button type="button" class="btn-whatsapp" onclick="openWhatsApp()">💬 ¿Tienes dudas? Habla por WhatsApp</button>
+
+      <div class="pay-section-label">Método de pago</div>
+      <div class="pay-methods">
+        <div class="pay-opt selected" id="pay-efectivo" onclick="selectPayMethod('efectivo')">
+          <span class="pay-opt-icon">💵</span>
+          <div class="pay-opt-name">Efectivo</div>
+          <div class="pay-opt-sub">Sin recargo</div>
+        </div>
+        <div class="pay-opt tarjeta" id="pay-tarjeta" onclick="selectPayMethod('tarjeta')">
+          <span class="pay-opt-icon">💳</span>
+          <div class="pay-opt-name">Tarjeta</div>
+          <div class="pay-opt-sub">+5% recargo</div>
+        </div>
+      </div>
+      <div class="surcharge-notice" id="surchargeNotice">
+        💳 Se aplica un recargo del 5% por pago con tarjeta
+      </div>
+
+      <button class="btn-primary" id="sendBtn" onclick="sendOrder()">Enviar pedido →</button>
+      <button class="btn-secondary" onclick="closeCart()">Seguir viendo</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ORDER STATUS MODAL -->
+<div class="modal-bg" id="orderStatusModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-inner">
+      <div class="modal-title">Tu pedido</div>
+      <div id="orderStatusBody"></div>
+      <button class="btn-primary" id="orderStatusEditBtn" style="display:none;margin-top:6px" onclick="startEditingOrder()">Editar mi pedido</button>
+      <button class="btn-secondary" onclick="closeOrderStatus()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════
+var firebaseConfig = {
+  apiKey:            "AIzaSyBMQgjYBcTBhkl-KiMHmonx7WX7zA03HCs",
+  authDomain:        "menu-6bd1f.firebaseapp.com",
+  databaseURL:       "https://menu-6bd1f-default-rtdb.firebaseio.com",
+  projectId:         "menu-6bd1f",
+  storageBucket:     "menu-6bd1f.firebasestorage.app",
+  messagingSenderId: "1027294656545",
+  appId:             "1:1027294656545:web:67259cf9a7d13c5683aff5"
+};
+
+firebase.initializeApp(firebaseConfig);
+var db = firebase.database();
+
+// WhatsApp del negocio. Número obtenido del perfil público de El Escondite Fast Food.
+var WHATSAPP_NUMBER = '18098554926';
+var customerLocation = null;
+var lastWhatsAppMessage = 'Hola, tengo una duda sobre un pedido en El Escondite Fast Food.';
+
+var menuData = [];
+var cart = {}; // key: itemName, val: {n, p, qty}
+var catActual = "";
+var toastT = null;
+
+var ORDER_KEY_STORAGE = 'eeq_pedido_key';
+var trackedOrderKey = localStorage.getItem(ORDER_KEY_STORAGE) || null;
+var trackedOrderRef = null;
+var trackedOrderData = null;
+var editingPedidoKey = null;
+
+function esc(s) {
+  var d = document.createElement('div');
+  d.appendChild(document.createTextNode(String(s == null ? '' : s)));
+  return d.innerHTML;
+}
+
+if (trackedOrderKey) startTracking(trackedOrderKey);
+
+// ── ITEM EMOJIS ─────────────────────────────
+var emojiMap = {
+  default: ['🍽️','🥘','🍲','🥗','🥙','🌮','🌯','🍱','🍛','🍜','🍝'],
+  bebida:  ['🥤','🧃','☕','🍹','🧋','🍺','🥛','🍵'],
+  postre:  ['🍰','🧁','🍮','🍩','🍪','🍫','🍦'],
+  yaroa:   ['🌯','🥙','🍟'],
+  pollo:   ['🍗'],
+  carne:   ['🥩'],
+  burger:  ['🍔'],
+  pizza:   ['🍕'],
+  sandwich:['🥪'],
+  arroz:   ['🍚'],
+  frito:   ['🍟'],
+};
+function getEmoji(name) {
+  var n = name.toLowerCase();
+  if (n.includes('bebida')||n.includes('jugo')||n.includes('refresco')||n.includes('agua')) return pick(emojiMap.bebida);
+  if (n.includes('postre')||n.includes('cake')||n.includes('dulce')) return pick(emojiMap.postre);
+  if (n.includes('yaroa')) return pick(emojiMap.yaroa);
+  if (n.includes('pollo')) return pick(emojiMap.pollo);
+  if (n.includes('carne')||n.includes('res')) return pick(emojiMap.carne);
+  if (n.includes('burger')||n.includes('hamburgue')) return pick(emojiMap.burger);
+  if (n.includes('pizza')) return pick(emojiMap.pizza);
+  if (n.includes('sandwich')||n.includes('sanguche')) return pick(emojiMap.sandwich);
+  if (n.includes('arroz')) return pick(emojiMap.arroz);
+  if (n.includes('frito')) return pick(emojiMap.frito);
+  return pick(emojiMap.default);
+}
+function getCatEmoji(cat) {
+  var c = cat.toLowerCase();
+  if (c.includes('bebida')) return '🥤';
+  if (c.includes('postre')) return '🍰';
+  if (c.includes('yaroa')) return '🌯';
+  if (c.includes('pollo')) return '🍗';
+  if (c.includes('carne')) return '🥩';
+  if (c.includes('burger')||c.includes('hamburgue')) return '🍔';
+  if (c.includes('pizza')) return '🍕';
+  return '🍽️';
+}
+// deterministic emoji from item name
+function pick(arr) { return arr[0]; }
+function hashEmoji(name, arr) {
+  var h = 0; for(var i=0;i<name.length;i++) h = (h*31 + name.charCodeAt(i)) & 0xffff;
+  return arr[h % arr.length];
+}
+function getItemEmoji(itemName) {
+  var n = itemName.toLowerCase();
+  if (n.includes('jugo')||n.includes('refresco')||n.includes('agua')||n.includes('coca')||n.includes('pepsi')) return hashEmoji(itemName, emojiMap.bebida);
+  if (n.includes('yaroa')) return hashEmoji(itemName, emojiMap.yaroa);
+  if (n.includes('pollo')) return '🍗';
+  if (n.includes('carne')||n.includes('res')) return '🥩';
+  if (n.includes('burger')||n.includes('hamburgue')) return '🍔';
+  if (n.includes('pizza')) return '🍕';
+  if (n.includes('sandwich')||n.includes('sanguche')) return '🥪';
+  if (n.includes('arroz')) return '🍚';
+  if (n.includes('frito')) return '🍟';
+  if (n.includes('cake')||n.includes('dulce')||n.includes('postre')) return hashEmoji(itemName, emojiMap.postre);
+  return hashEmoji(itemName, emojiMap.default);
+}
+
+// ── SEGUIMIENTO DEL PEDIDO DEL CLIENTE ───────
+function startTracking(key) {
+  if (trackedOrderRef) trackedOrderRef.off();
+  trackedOrderKey = key;
+  localStorage.setItem(ORDER_KEY_STORAGE, key);
+  trackedOrderRef = db.ref('pedidos/' + key);
+  trackedOrderRef.on('value', onTrackedOrderChange, function(err) {
+    console.warn('No se pudo seguir el pedido:', err);
+  });
+}
+
+function stopTracking() {
+  if (trackedOrderRef) trackedOrderRef.off();
+  trackedOrderRef = null;
+  trackedOrderKey = null;
+  trackedOrderData = null;
+  localStorage.removeItem(ORDER_KEY_STORAGE);
+  updateOrderChip();
+}
+
+function onTrackedOrderChange(snap) {
+  var val = snap.val();
+  var wasEditingThis = editingPedidoKey && editingPedidoKey === trackedOrderKey;
+  trackedOrderData = val;
+
+  if (!val) {
+    localStorage.removeItem(ORDER_KEY_STORAGE);
+    trackedOrderKey = null;
+    if (wasEditingThis) {
+      editingPedidoKey = null;
+      cart = {};
+      hideEditBanner();
+      updateCartBar();
+      renderItems();
+      toast('Tu pedido fue cancelado por el negocio');
+    }
+    updateOrderChip();
+    renderOrderStatusModal();
+    return;
+  }
+
+  if (wasEditingThis && (val.estado || 'pendiente') !== 'pendiente') {
+    editingPedidoKey = null;
+    cart = {};
+    hideEditBanner();
+    updateCartBar();
+    renderItems();
+    toast('Tu pedido ya entro en preparacion y no se puede editar mas');
+  }
+
+  updateOrderChip();
+  renderOrderStatusModal();
+}
+
+var ORDER_STATE_LABELS = {
+  pendiente: 'Pendiente',
+  en_cobro: 'En caja',
+  completado: 'En preparacion',
+  pagado: 'Pagado'
+};
+
+function updateOrderChip() {
+  var chip = document.getElementById('orderStatusChip');
+  if (!chip) return;
+  if (!trackedOrderKey || !trackedOrderData) {
+    chip.style.display = 'none';
+    return;
+  }
+  var estado = trackedOrderData.estado || 'pendiente';
+  document.getElementById('orderStatusText').textContent = ORDER_STATE_LABELS[estado] || 'En curso';
+  chip.style.display = 'flex';
+}
+
+function openOrderStatus() {
+  if (!trackedOrderKey) { toast('No tienes un pedido en curso'); return; }
+  renderOrderStatusModal();
+  document.getElementById('orderStatusModal').classList.add('show');
+}
+function closeOrderStatus() {
+  document.getElementById('orderStatusModal').classList.remove('show');
+}
+document.getElementById('orderStatusModal').onclick = function(e) {
+  if (e.target === this) closeOrderStatus();
+};
+
+function orderStatusItemsHtml(items) {
+  if (!items || !items.length) return '<p style="color:var(--muted);font-size:13px">Sin productos</p>';
+  return '<div class="order-status-items">' + items.map(function(it) {
+    return '<div class="cart-item"><div class="ci-info"><div class="ci-name">' + esc(it.n) + '</div></div>' +
+      '<div class="qnum">' + esc(it.qty) + 'x</div>' +
+      '<div class="ci-total">RD$ ' + formatMoney(it.p * it.qty) + '</div></div>';
+  }).join('') + '</div>';
+}
+
+function renderOrderStatusModal() {
+  var body = document.getElementById('orderStatusBody');
+  var editBtn = document.getElementById('orderStatusEditBtn');
+  if (!body) return;
+  var val = trackedOrderData;
+  if (!trackedOrderKey || !val) {
+    body.innerHTML = '<p style="color:var(--muted);font-size:14px;line-height:1.6">Tu pedido ya no esta disponible. Es posible que haya sido cancelado por el negocio.</p>';
+    editBtn.style.display = 'none';
+    return;
+  }
+  var estado = val.estado || 'pendiente';
+  var items = Array.isArray(val.items) ? val.items : [];
+  body.innerHTML =
+    '<div class="order-status-label ' + estado + '">' + (ORDER_STATE_LABELS[estado] || 'En preparacion') + '</div>' +
+    orderStatusItemsHtml(items) +
+    '<div class="t-row grand" style="margin-top:14px"><span>Total</span><span>RD$ ' + formatMoney(val.total) + '</span></div>' +
+    (estado !== 'pendiente' ? '<p style="color:var(--muted);font-size:12px;margin-top:10px">Este pedido ya no se puede editar porque el negocio ya lo esta preparando o cobrando.</p>' : '');
+  editBtn.style.display = estado === 'pendiente' ? 'block' : 'none';
+}
+
+function showEditBanner() {
+  document.getElementById('editOrderBanner').style.display = 'flex';
+}
+function hideEditBanner() {
+  document.getElementById('editOrderBanner').style.display = 'none';
+}
+
+function startEditingOrder() {
+  if (!trackedOrderData || (trackedOrderData.estado || 'pendiente') !== 'pendiente') {
+    toast('Tu pedido ya no se puede editar');
+    return;
+  }
+  editingPedidoKey = trackedOrderKey;
+  cart = {};
+  (trackedOrderData.items || []).forEach(function(it) {
+    if (!it || !it.n) return;
+    cart[it.n] = { n: it.n, p: Number(it.p), qty: Number(it.qty) };
+  });
+  closeOrderStatus();
+  document.querySelector('.main-layout').style.display = 'flex';
+  document.getElementById('successScreen').classList.remove('show');
+  document.getElementById('heroSection').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+  showEditBanner();
+  updateCartBar();
+  renderItems();
+  toast('Editando tu pedido. Ajusta los productos y toca Guardar.');
+}
+
+function cancelEditingOrder() {
+  editingPedidoKey = null;
+  cart = {};
+  hideEditBanner();
+  updateCartBar();
+  renderItems();
+  toast('Edicion cancelada');
+}
+
+// ── FIREBASE LOAD ────────────────────────────
+db.ref('menu').on('value', function(snap) {
+  var data = snap.val();
+  if (data && Array.isArray(data) && data.length) {
+    menuData = data;
+  } else {
+    menuData = [];
+  }
+  if (!catActual || !menuData.find(function(c){ return c.cat === catActual; })) {
+    catActual = menuData.length ? menuData[0].cat : '';
+  }
+  renderAll();
+}, function(error) {
+  console.error('Firebase menu error:', error);
+  document.getElementById('loader').style.display = 'none';
+  document.getElementById('emptyMenu').style.display = 'block';
+  document.getElementById('emptyMenu').querySelector('p').innerHTML =
+    'No pudimos cargar el menú.<br>Comprueba tu conexión e inténtalo de nuevo.';
+});
+
+function renderAll() {
+  document.getElementById('loader').style.display = 'none';
+
+  if (!menuData.length) {
+    document.getElementById('catWrap').style.display = 'none';
+    document.getElementById('itemsWrap').style.display = 'none';
+    document.getElementById('emptyMenu').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('emptyMenu').style.display = 'none';
+  document.getElementById('catWrap').style.display = 'flex';
+  document.getElementById('itemsWrap').style.display = 'block';
+  renderCats();
+  renderItems();
+}
+
+function renderCats() {
+  var bar = document.getElementById('catWrap');
+  bar.innerHTML = '';
+  menuData.forEach(function(cat) {
+    var b = document.createElement('button');
+    b.className = 'cat-btn' + (cat.cat === catActual ? ' active' : '');
+    b.textContent = getCatEmoji(cat.cat) + ' ' + cat.cat;
+    b.onclick = (function(c){ return function(){ catActual = c; renderCats(); renderItems(); scrollToTop(); }; })(cat.cat);
+    bar.appendChild(b);
+  });
+}
+
+function scrollToTop() {
+  var cs = document.querySelector('.content-scroll');
+  if (cs) cs.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderItems() {
+  var wrap = document.getElementById('itemsWrap');
+  wrap.innerHTML = '';
+
+  var cat = menuData.find(function(c){ return c.cat === catActual; });
+  if (!cat || !Array.isArray(cat.items) || !cat.items.length) {
+    wrap.innerHTML = '<div class="empty-menu"><div class="eico">🍽️</div><p>Sin productos en esta categoria.</p></div>';
+    return;
+  }
+
+  var section = document.createElement('div');
+  section.className = 'cat-section';
+
+  var label = document.createElement('div');
+  label.className = 'section-label';
+  label.textContent = cat.cat;
+  section.appendChild(label);
+
+  cat.items.forEach(function(item) {
+    var name = String(item.n || '').trim();
+    var price = Number(item.p);
+    if (!name || !Number.isFinite(price) || price < 0) return;
+
+    var card = document.createElement('div');
+    var inCart = cart[name] && cart[name].qty > 0;
+    card.className = 'item-card' + (inCart ? ' in-cart' : '');
+
+    if (item.img && isSafeImageUrl(item.img)) {
+      var img = document.createElement('img');
+      img.className = 'item-thumb';
+      img.alt = name;
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.src = item.img;
+      img.onerror = function(){ this.replaceWith(makeEmoji(name)); };
+      card.appendChild(img);
+    } else {
+      card.appendChild(makeEmoji(name));
+    }
+
+    var info = document.createElement('div');
+    info.className = 'item-info';
+
+    var nameEl = document.createElement('div');
+    nameEl.className = 'item-name';
+    nameEl.textContent = name;
+
+    var priceEl = document.createElement('div');
+    priceEl.className = 'item-price';
+    priceEl.textContent = 'RD$ ' + formatMoney(price);
+
+    info.appendChild(nameEl);
+    info.appendChild(priceEl);
+    card.appendChild(info);
+
+    if (inCart) {
+      var ctrl = document.createElement('div');
+      ctrl.className = 'qty-ctrl';
+
+      var minus = document.createElement('button');
+      minus.className = 'qbtn';
+      minus.type = 'button';
+      minus.setAttribute('aria-label','Quitar una unidad de '+name);
+      minus.textContent = '−';
+      minus.onclick = function(e){ changeQty(e,name,price,-1); };
+
+      var qty = document.createElement('div');
+      qty.className = 'qnum';
+      qty.textContent = cart[name].qty;
+      qty.setAttribute('aria-label','Cantidad '+cart[name].qty);
+
+      var plus = document.createElement('button');
+      plus.className = 'qbtn';
+      plus.type = 'button';
+      plus.setAttribute('aria-label','Agregar una unidad de '+name);
+      plus.textContent = '+';
+      plus.onclick = function(e){ changeQty(e,name,price,1); };
+
+      ctrl.appendChild(minus); ctrl.appendChild(qty); ctrl.appendChild(plus);
+      card.appendChild(ctrl);
+    } else {
+      var add = document.createElement('button');
+      add.className = 'add-btn';
+      add.type = 'button';
+      add.setAttribute('aria-label','Agregar '+name+' al pedido');
+      add.textContent = '+';
+      add.onclick = function(e){ addItem(e,name,price); };
+      card.appendChild(add);
+    }
+
+    section.appendChild(card);
+  });
+
+  wrap.appendChild(section);
+}
+
+function makeEmoji(name) {
+  var el = document.createElement('div');
+  el.className = 'item-emoji';
+  el.setAttribute('aria-hidden','true');
+  el.textContent = getItemEmoji(name);
+  return el;
+}
+
+function isSafeImageUrl(url) {
+  try {
+    var u = new URL(String(url), window.location.href);
+    return u.protocol === 'https:' || u.protocol === 'http:';
+  } catch(e) {
+    return false;
+  }
+}
+
+function formatMoney(value) {
+  return Math.round(Number(value)).toLocaleString('es-DO');
+}
+
+
+// ── CART ACTIONS ─────────────────────────────
+function addItem(e, name, price) {
+  if (e) e.stopPropagation();
+  if (!cart[name]) cart[name] = {n: name, p: price, qty: 0};
+  cart[name].qty++;
+  updateCartBar();
+  renderItems();
+  toast('+ ' + name);
+}
+
+function changeQty(e, name, price, delta) {
+  if (e) e.stopPropagation();
+  if (!cart[name]) cart[name] = {n: name, p: price, qty: 0};
+  cart[name].qty += delta;
+  if (cart[name].qty <= 0) delete cart[name];
+  updateCartBar();
+  renderItems();
+  if (document.getElementById('cartModal').classList.contains('show')) renderCartModal();
+}
+
+function getCartItems() {
+  return Object.values(cart).filter(function(i){ return i.qty > 0; });
+}
+function getCartTotal() {
+  return getCartItems().reduce(function(s,i){ return s + i.p*i.qty; }, 0);
+}
+function getCartCount() {
+  return getCartItems().reduce(function(s,i){ return s + i.qty; }, 0);
+}
+
+function updateCartBar() {
+  var count = getCartCount();
+  var bar = document.getElementById('cartBar');
+  var btn = document.getElementById('cartCount');
+  bar.style.display = count > 0 ? 'block' : 'none';
+  btn.textContent = count + (count === 1 ? ' item' : ' items');
+  var label = document.querySelector('#cartBar .cart-btn span:first-child');
+  if (label) label.textContent = editingPedidoKey ? '💾 Guardar cambios' : '🛒 Ver pedido';
+}
+
+var payMethod = 'efectivo'; // 'efectivo' | 'tarjeta'
+
+function selectPayMethod(method) {
+  payMethod = method;
+  document.getElementById('pay-efectivo').classList.toggle('selected', method === 'efectivo');
+  document.getElementById('pay-tarjeta').classList.toggle('selected', method === 'tarjeta');
+  document.getElementById('surchargeNotice').classList.toggle('show', method === 'tarjeta');
+  renderCartModal();
+}
+
+function getSurcharge(subtotal) {
+  return payMethod === 'tarjeta' ? Math.round(subtotal * 0.05) : 0;
+}
+function getFinalTotal() {
+  var sub = getCartTotal();
+  return sub + getSurcharge(sub);
+}
+
+// ── CART MODAL ───────────────────────────────
+function openCart() {
+  renderCartModal();
+  var titleEl = document.querySelector('#cartModal .modal-title');
+  var sendBtn = document.getElementById('sendBtn');
+  if (editingPedidoKey && trackedOrderData) {
+    if (titleEl) titleEl.textContent = 'Editar tu pedido';
+    if (sendBtn) sendBtn.textContent = 'Guardar cambios';
+    if (!document.getElementById('clienteName').value) {
+      document.getElementById('clienteName').value = trackedOrderData.cliente || '';
+    }
+    if (!document.getElementById('orderNote').value) {
+      document.getElementById('orderNote').value = trackedOrderData.nota || '';
+    }
+    selectPayMethod(trackedOrderData.metodo === 'tarjeta' ? 'tarjeta' : 'efectivo');
+  } else {
+    if (titleEl) titleEl.textContent = 'Tu Pedido';
+    if (sendBtn) sendBtn.textContent = 'Enviar pedido →';
+  }
+  document.getElementById('cartModal').classList.add('show');
+}
+function closeCart() {
+  document.getElementById('cartModal').classList.remove('show');
+}
+document.getElementById('cartModal').onclick = function(e) {
+  if (e.target === this) closeCart();
+};
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeCart();
+});
+
+function renderCartModal() {
+  var items = getCartItems();
+  var list = document.getElementById('cartItemsList');
+  list.innerHTML = '';
+
+  items.forEach(function(item) {
+    var row = document.createElement('div');
+    row.className = 'cart-item';
+
+    var info = document.createElement('div');
+    info.className = 'ci-info';
+    var nm = document.createElement('div');
+    nm.className = 'ci-name';
+    nm.textContent = item.n;
+    var pr = document.createElement('div');
+    pr.className = 'ci-price';
+    pr.textContent = 'RD$ ' + formatMoney(item.p) + ' c/u';
+    info.appendChild(nm); info.appendChild(pr);
+
+    var ctrl = document.createElement('div');
+    ctrl.className = 'qty-ctrl';
+    var minus = document.createElement('button');
+    minus.className='qbtn'; minus.type='button'; minus.textContent='−';
+    minus.setAttribute('aria-label','Quitar una unidad de '+item.n);
+    minus.onclick=function(){changeQty(null,item.n,item.p,-1);};
+    var qty = document.createElement('div');
+    qty.className='qnum'; qty.textContent=item.qty;
+    var plus = document.createElement('button');
+    plus.className='qbtn'; plus.type='button'; plus.textContent='+';
+    plus.setAttribute('aria-label','Agregar una unidad de '+item.n);
+    plus.onclick=function(){changeQty(null,item.n,item.p,1);};
+    ctrl.appendChild(minus);ctrl.appendChild(qty);ctrl.appendChild(plus);
+
+    var total = document.createElement('div');
+    total.className='ci-total';
+    total.textContent='RD$ '+formatMoney(item.p*item.qty);
+
+    row.appendChild(info);row.appendChild(ctrl);row.appendChild(total);
+    list.appendChild(row);
+  });
+
+  var sub = getCartTotal();
+  var surcharge = getSurcharge(sub);
+  var total = sub + surcharge;
+  document.getElementById('cartItemCount').textContent = getCartCount() + (getCartCount() === 1 ? ' item' : ' items');
+  document.getElementById('cartTotal').textContent = 'RD$ ' + formatMoney(total);
+  var sRow = document.getElementById('surchargeRow');
+  if (surcharge > 0) {
+    sRow.style.display = 'flex';
+    document.getElementById('surchargeAmt').textContent = 'RD$ ' + formatMoney(surcharge);
+  } else {
+    sRow.style.display = 'none';
+  }
+}
+
+// ── UBICACIÓN DEL CLIENTE ───────────────────
+function getCustomerLocation() {
+  var btn = document.getElementById('locationBtn');
+  var status = document.getElementById('locationStatus');
+
+  if (!navigator.geolocation) {
+    status.textContent = 'Tu navegador no permite obtener la ubicación.';
+    toast('La ubicación no está disponible en este navegador');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '📍 Obteniendo ubicación...';
+  status.textContent = 'Permite el acceso a tu ubicación cuando el navegador lo solicite.';
+
+  navigator.geolocation.getCurrentPosition(function(position) {
+    customerLocation = {
+      lat: Number(position.coords.latitude.toFixed(7)),
+      lng: Number(position.coords.longitude.toFixed(7)),
+      precision: position.coords.accuracy ? Number(position.coords.accuracy.toFixed(1)) : null,
+      fecha: new Date().toISOString()
+    };
+    btn.disabled = false;
+    btn.textContent = '📍 Ubicación compartida ✓';
+    status.textContent = customerLocation.precision ?
+      'Ubicación lista. Precisión aproximada: ' + customerLocation.precision + ' m.' :
+      'Ubicación lista para el pedido.';
+  }, function(error) {
+    customerLocation = null;
+    btn.disabled = false;
+    btn.textContent = '📍 Compartir mi ubicación actual';
+    if (error.code === 1) {
+      status.textContent = 'No se concedió el permiso. Puedes realizar el pedido sin compartir ubicación.';
+    } else {
+      status.textContent = 'No pudimos obtener tu ubicación. Puedes realizar el pedido sin ella.';
+    }
+  }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
+}
+
+// ── WHATSAPP ─────────────────────────────────
+function openWhatsApp(message) {
+  var text = message || 'Hola, tengo una duda sobre un pedido en El Escondite Fast Food.';
+  var url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(text);
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+// ── SEND ORDER ───────────────────────────────
+function sendOrder() {
+  var name = document.getElementById('clienteName').value.trim();
+  var note = document.getElementById('orderNote').value.trim();
+
+  if (!name) {
+    toast('Por favor escribe tu nombre');
+    document.getElementById('clienteName').focus();
+    return;
+  }
+  if (name.length > 40 || note.length > 160) {
+    toast('Revisa los datos del pedido');
+    return;
+  }
+
+  var items = getCartItems();
+  if (!items.length) { toast('El carrito esta vacio'); return; }
+
+  /* Validación local: evita enviar productos/precios que ya no existen en el menú.
+     Importante: esto NO sustituye las reglas de seguridad de Firebase. */
+  var validItems = [];
+  items.forEach(function(i) {
+    menuData.forEach(function(cat) {
+      if (!Array.isArray(cat.items)) return;
+      cat.items.forEach(function(m) {
+        if (String(m.n) === String(i.n) && Number(m.p) === Number(i.p)) {
+          validItems.push(i);
+        }
+      });
+    });
+  });
+  if (validItems.length !== items.length) {
+    toast('El menú cambió. Actualiza y revisa tu pedido.');
+    cart = {};
+    updateCartBar();
+    renderItems();
+    return;
+  }
+
+  var btn = document.getElementById('sendBtn');
+  if (btn.disabled) return;
+  btn.disabled = true;
+
+  var subtotal = getCartTotal();
+  var surcharge = getSurcharge(subtotal);
+  var total = subtotal + surcharge;
+
+  if (editingPedidoKey) {
+    if (!trackedOrderData || (trackedOrderData.estado || 'pendiente') !== 'pendiente') {
+      btn.disabled = false;
+      toast('Este pedido ya no se puede editar');
+      editingPedidoKey = null;
+      hideEditBanner();
+      return;
+    }
+    btn.textContent = 'Guardando...';
+    var patch = {
+      cliente: name,
+      items: items.map(function(i){ return {n:i.n, p:Number(i.p), qty:Number(i.qty)}; }),
+      subtotal: Number(subtotal),
+      surcharge: Number(surcharge),
+      total: Number(total),
+      metodo: payMethod === 'tarjeta' ? 'tarjeta' : 'efectivo',
+      nota: note,
+      editadoEn: new Date().toISOString()
+    };
+    var editedKey = editingPedidoKey;
+    db.ref('pedidos/' + editedKey).update(patch, function(err) {
+      btn.disabled = false;
+      btn.textContent = 'Guardar cambios';
+      if (err) { toast('Error al guardar. Intenta de nuevo.'); return; }
+      editingPedidoKey = null;
+      cart = {};
+      hideEditBanner();
+      closeCart();
+      updateCartBar();
+      renderItems();
+      toast('Pedido actualizado');
+      openOrderStatus();
+    });
+    return;
+  }
+
+  btn.textContent = 'Enviando...';
+
+  var pedido = {
+    cliente: name,
+    items: items.map(function(i){ return {n:i.n, p:Number(i.p), qty:Number(i.qty)}; }),
+    subtotal: Number(subtotal),
+    surcharge: Number(surcharge),
+    total: Number(total),
+    metodo: payMethod === 'tarjeta' ? 'tarjeta' : 'efectivo',
+    nota: note,
+    ubicacion: customerLocation ? {
+      lat: customerLocation.lat,
+      lng: customerLocation.lng,
+      precision: customerLocation.precision,
+      fecha: customerLocation.fecha
+    } : null,
+    estado: 'pendiente',
+    fecha: new Date().toISOString()
+  };
+
+  var newRef = db.ref('pedidos').push();
+  newRef.set(pedido, function(err) {
+    btn.disabled = false;
+    btn.textContent = 'Enviar pedido →';
+    if (err) { toast('Error al enviar. Intenta de nuevo.'); return; }
+    closeCart();
+    startTracking(newRef.key);
+    showSuccess(pedido.cliente);
+  });
+}
+
+function showSuccess(nombre) {
+  var orderId = '#' + String(Date.now()).slice(-5);
+  lastWhatsAppMessage = 'Hola, soy ' + nombre + '. Acabo de realizar el pedido ' + orderId + ' en El Escondite Fast Food y tengo una duda sobre mi pedido.';
+  document.querySelector('.main-layout').style.display = 'none';
+  document.getElementById('successOrderId').textContent = orderId;
+  document.getElementById('heroSection').style.display = 'none';
+  document.getElementById('catWrap').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'none';
+  document.getElementById('cartBar').style.display = 'none';
+  document.getElementById('successScreen').classList.add('show');
+}
+
+function resetApp() {
+  document.querySelector('.main-layout').style.display = 'flex';
+  editingPedidoKey = null;
+  hideEditBanner();
+  cart = {};
+  document.getElementById('clienteName').value = '';
+  document.getElementById('orderNote').value = '';
+  customerLocation = null;
+  var locBtn = document.getElementById('locationBtn');
+  var locStatus = document.getElementById('locationStatus');
+  if (locBtn) { locBtn.disabled = false; locBtn.textContent = '📍 Compartir mi ubicación actual'; }
+  if (locStatus) locStatus.textContent = 'Opcional. Solo se solicitará permiso cuando tú pulses el botón.';
+  lastWhatsAppMessage = 'Hola, tengo una duda sobre un pedido en El Escondite Fast Food.';
+  document.getElementById('successScreen').classList.remove('show');
+  document.getElementById('heroSection').style.display = 'block'; document.getElementById('catWrap').style.display = 'none'; var cs = document.querySelector('.content-scroll'); if(cs) cs.scrollTo({top:0,behavior:'smooth'});
+  document.getElementById('mainContent').style.display = 'block';
+  updateCartBar();
+  renderAll();
+  window.scrollTo(0, 0);
+}
+
+// ── TOAST ────────────────────────────────────
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  if (toastT) clearTimeout(toastT);
+  toastT = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
+</script>
+</body>
+</html>
