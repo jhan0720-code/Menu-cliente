@@ -100,7 +100,7 @@ body {
 @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
 
 /* ── CAT BAR ── */
-/* ── LAYOUT PRINCIPAL con sidebar ── */
+/* ── LAYOUT PRINCIPAL ── */
 .main-layout {
   display: flex;
   min-height: 100vh;
@@ -111,47 +111,103 @@ body {
   /* hero is now inside content-scroll */
 }
 
-/* Sidebar categorías vertical */
-.cat-wrap {
+/* Pantalla de categorías (grid) */
+.cat-screen {
+  padding: 4px 14px 24px;
+}
+
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.cat-card {
   display: flex;
   flex-direction: column;
-  width: 84px;
-  flex-shrink: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  aspect-ratio: 1 / 1;
+  padding: 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1.25;
+  overflow: hidden;
+  transition: border-color .2s, background .2s, transform .12s;
+}
+.cat-card:active {
+  background: var(--surface);
+  border-color: var(--accent);
+  transform: scale(.96);
+}
+.cat-card-img-wrap {
+  width: 100%;
+  flex: 1;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.cat-card-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.cat-card-emoji {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
   background: var(--card);
-  border-right: 1px solid var(--border);
-  padding: 10px 7px;
-  gap: 6px;
-  scrollbar-width: none;
+  font-size: 30px;
+}
+.cat-card.no-img {
+  justify-content: center;
+}
+.cat-card-name {
+  display: block;
+}
+
+/* Pantalla de productos de una categoría */
+.products-screen {
+  padding: 0 0 24px;
+}
+.products-topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
   position: sticky;
   top: 0;
-  min-height: 100vh;
-  align-self: flex-start;
+  z-index: 4;
+  background: linear-gradient(var(--bg) 75%, transparent);
+  backdrop-filter: blur(5px);
 }
-.cat-wrap::-webkit-scrollbar { display: none; }
-
-.cat-btn {
-  padding: 10px 6px;
+.back-btn {
+  flex-shrink: 0;
   border: 1.5px solid var(--border);
   border-radius: 10px;
   background: var(--surface);
-  color: var(--muted);
+  color: var(--text);
   font-family: 'DM Sans', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 9px 14px;
   cursor: pointer;
-  white-space: normal;
-  word-break: break-word;
-  text-align: center;
-  line-height: 1.3;
-  width: 100%;
-  transition: all .2s;
 }
-.cat-btn.active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
+.back-btn:active { background: var(--card); }
+.products-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
 }
 
 /* Contenido principal desplazable */
@@ -163,7 +219,7 @@ body {
 .content-scroll::-webkit-scrollbar { display: none; }
 
 /* ── ITEMS ── */
-.items-wrap { padding: 16px 14px 140px; }
+.items-wrap { padding: 4px 14px 140px; }
 .cat-section { margin-bottom: 28px; }
 .section-label {
   font-size: 10px;
@@ -573,16 +629,18 @@ button:focus-visible,input:focus-visible{
 .hero-title{font-size:42px;letter-spacing:-.7px;text-shadow:0 8px 30px rgba(0,0,0,.25)}
 .hero-sub{max-width:330px;margin-inline:auto}
 .status-pill{box-shadow:0 4px 18px rgba(34,197,94,.08)}
-.cat-wrap{
-  background:rgba(21,25,34,.94);
-  backdrop-filter:blur(14px);
+.cat-grid{
+  padding-top: 2px;
 }
-.cat-btn{
-  min-height:58px;
-  border-radius:13px;
+.cat-card{
+  border-radius:16px;
   border-color:#252c3c;
+  background:#1b2130;
 }
-.cat-btn.active{box-shadow:0 6px 18px rgba(255,107,0,.22)}
+.cat-card:active{border-color:var(--accent)}
+.cat-card-img-wrap,.cat-card-emoji{border-radius:12px}
+.products-topbar{background:linear-gradient(var(--bg) 75%,transparent)}
+.back-btn{border-color:#252c3c}
 .items-wrap{padding:18px 14px 150px}
 .section-label{
   position:sticky;top:0;z-index:4;
@@ -732,9 +790,6 @@ button:focus-visible,input:focus-visible{
 <!-- LAYOUT PRINCIPAL -->
 <div class="main-layout">
 
-  <!-- SIDEBAR CATEGORÍAS -->
-  <div class="cat-wrap" id="catWrap" style="display:none"></div>
-
   <!-- CONTENIDO DESPLAZABLE -->
   <div class="content-scroll">
     <div class="hero" id="heroSection">
@@ -747,10 +802,23 @@ button:focus-visible,input:focus-visible{
         <div class="spinner"></div>
         Cargando menu...
       </div>
-      <div class="items-wrap" id="itemsWrap" style="display:none"></div>
       <div class="empty-menu" id="emptyMenu" style="display:none">
         <div class="eico">🍽️</div>
         <p>El menu esta vacio por ahora.<br>Vuelve pronto.</p>
+      </div>
+
+      <!-- PANTALLA DE CATEGORÍAS -->
+      <div class="cat-screen" id="catScreen" style="display:none">
+        <div class="cat-grid" id="catGrid"></div>
+      </div>
+
+      <!-- PANTALLA DE PRODUCTOS DE UNA CATEGORÍA -->
+      <div class="products-screen" id="productsScreen" style="display:none">
+        <div class="products-topbar">
+          <button type="button" class="back-btn" onclick="showCatsScreen()">← Categorías</button>
+          <div class="products-title" id="catTitle"></div>
+        </div>
+        <div class="items-wrap" id="itemsWrap"></div>
       </div>
     </div>
   </div>
@@ -865,6 +933,7 @@ var lastWhatsAppMessage = 'Hola, tengo una duda sobre un pedido en El Escondite 
 var menuData = [];
 var cart = {}; // key: itemName, val: {n, p, qty}
 var catActual = "";
+var screenOpen = 'cats'; // 'cats' | 'products'
 var toastT = null;
 
 var ORDER_KEY_STORAGE = 'eeq_pedido_key';
@@ -1080,7 +1149,7 @@ function startEditingOrder() {
   document.getElementById('mainContent').style.display = 'block';
   showEditBanner();
   updateCartBar();
-  renderItems();
+  if (catActual) showProductsScreen(catActual); else renderItems();
   toast('Editando tu pedido. Ajusta los productos y toca Guardar.');
 }
 
@@ -1117,29 +1186,82 @@ function renderAll() {
   document.getElementById('loader').style.display = 'none';
 
   if (!menuData.length) {
-    document.getElementById('catWrap').style.display = 'none';
-    document.getElementById('itemsWrap').style.display = 'none';
+    document.getElementById('catScreen').style.display = 'none';
+    document.getElementById('productsScreen').style.display = 'none';
     document.getElementById('emptyMenu').style.display = 'block';
     return;
   }
 
   document.getElementById('emptyMenu').style.display = 'none';
-  document.getElementById('catWrap').style.display = 'flex';
-  document.getElementById('itemsWrap').style.display = 'block';
-  renderCats();
-  renderItems();
+  renderCatGrid();
+
+  if (screenOpen === 'products' && catActual && menuData.find(function(c){ return c.cat === catActual; })) {
+    document.getElementById('catTitle').textContent = catActual;
+    renderItems();
+    document.getElementById('catScreen').style.display = 'none';
+    document.getElementById('productsScreen').style.display = 'block';
+  } else {
+    showCatsScreen();
+  }
 }
 
-function renderCats() {
-  var bar = document.getElementById('catWrap');
-  bar.innerHTML = '';
+function renderCatGrid() {
+  var grid = document.getElementById('catGrid');
+  grid.innerHTML = '';
   menuData.forEach(function(cat) {
+    var hasImg = cat.img && isSafeImageUrl(cat.img);
     var b = document.createElement('button');
-    b.className = 'cat-btn' + (cat.cat === catActual ? ' active' : '');
-    b.textContent = getCatEmoji(cat.cat) + ' ' + cat.cat;
-    b.onclick = (function(c){ return function(){ catActual = c; renderCats(); renderItems(); scrollToTop(); }; })(cat.cat);
-    bar.appendChild(b);
+    b.type = 'button';
+    b.className = 'cat-card' + (hasImg ? '' : ' no-img');
+
+    if (hasImg) {
+      var imgWrap = document.createElement('div');
+      imgWrap.className = 'cat-card-img-wrap';
+      var img = document.createElement('img');
+      img.alt = cat.cat;
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.src = cat.img;
+      img.onerror = function(){ imgWrap.replaceWith(makeCatEmoji(cat.cat)); b.classList.add('no-img'); };
+      imgWrap.appendChild(img);
+      b.appendChild(imgWrap);
+    } else {
+      b.appendChild(makeCatEmoji(cat.cat));
+    }
+
+    var name = document.createElement('span');
+    name.className = 'cat-card-name';
+    name.textContent = cat.cat;
+    b.appendChild(name);
+
+    b.onclick = (function(c){ return function(){ showProductsScreen(c); }; })(cat.cat);
+    grid.appendChild(b);
   });
+}
+
+function makeCatEmoji(name) {
+  var el = document.createElement('div');
+  el.className = 'cat-card-emoji';
+  el.setAttribute('aria-hidden','true');
+  el.textContent = getCatEmoji(name);
+  return el;
+}
+
+function showProductsScreen(catName) {
+  catActual = catName;
+  screenOpen = 'products';
+  document.getElementById('catTitle').textContent = catName;
+  renderItems();
+  document.getElementById('catScreen').style.display = 'none';
+  document.getElementById('productsScreen').style.display = 'block';
+  scrollToTop();
+}
+
+function showCatsScreen() {
+  screenOpen = 'cats';
+  document.getElementById('productsScreen').style.display = 'none';
+  document.getElementById('catScreen').style.display = 'block';
+  scrollToTop();
 }
 
 function scrollToTop() {
@@ -1159,11 +1281,6 @@ function renderItems() {
 
   var section = document.createElement('div');
   section.className = 'cat-section';
-
-  var label = document.createElement('div');
-  label.className = 'section-label';
-  label.textContent = cat.cat;
-  section.appendChild(label);
 
   cat.items.forEach(function(item) {
     var name = String(item.n || '').trim();
@@ -1575,7 +1692,6 @@ function showSuccess(nombre) {
   document.querySelector('.main-layout').style.display = 'none';
   document.getElementById('successOrderId').textContent = orderId;
   document.getElementById('heroSection').style.display = 'none';
-  document.getElementById('catWrap').style.display = 'none';
   document.getElementById('mainContent').style.display = 'none';
   document.getElementById('cartBar').style.display = 'none';
   document.getElementById('successScreen').classList.add('show');
@@ -1595,7 +1711,8 @@ function resetApp() {
   if (locStatus) locStatus.textContent = 'Opcional. Solo se solicitará permiso cuando tú pulses el botón.';
   lastWhatsAppMessage = 'Hola, tengo una duda sobre un pedido en El Escondite Fast Food.';
   document.getElementById('successScreen').classList.remove('show');
-  document.getElementById('heroSection').style.display = 'block'; document.getElementById('catWrap').style.display = 'none'; var cs = document.querySelector('.content-scroll'); if(cs) cs.scrollTo({top:0,behavior:'smooth'});
+  screenOpen = 'cats';
+  document.getElementById('heroSection').style.display = 'block'; var cs = document.querySelector('.content-scroll'); if(cs) cs.scrollTo({top:0,behavior:'smooth'});
   document.getElementById('mainContent').style.display = 'block';
   updateCartBar();
   renderAll();
