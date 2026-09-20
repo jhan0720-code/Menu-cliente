@@ -1642,7 +1642,11 @@ function sendOrder() {
     db.ref('pedidos/' + editedKey).update(patch, function(err) {
       btn.disabled = false;
       btn.textContent = 'Guardar cambios';
-      if (err) { toast('Error al guardar. Intenta de nuevo.'); return; }
+      if (err) {
+        console.error('Error al guardar pedido:', err);
+        toast('Error al guardar: ' + (err.message || err.code || err));
+        return;
+      }
       editingPedidoKey = null;
       cart = {};
       hideEditBanner();
@@ -1679,7 +1683,11 @@ function sendOrder() {
   newRef.set(pedido, function(err) {
     btn.disabled = false;
     btn.textContent = 'Enviar pedido →';
-    if (err) { toast('Error al enviar. Intenta de nuevo.'); return; }
+    if (err) {
+      console.error('Error al enviar pedido:', err);
+      toast('Error al enviar: ' + (err.message || err.code || err));
+      return;
+    }
     closeCart();
     startTracking(newRef.key);
     showSuccess(pedido.cliente);
