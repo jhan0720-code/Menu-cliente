@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 <style>
 :root {
@@ -925,6 +926,15 @@ var firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 var db = firebase.database();
 
+var authReady = false;
+firebase.auth().signInAnonymously().catch(function(err) {
+  console.error('Error de autenticacion anonima:', err);
+  toast('No se pudo conectar. Recarga la pagina.');
+});
+firebase.auth().onAuthStateChanged(function(user) {
+  authReady = !!user;
+});
+
 // WhatsApp del negocio. Número obtenido del perfil público de El Escondite Fast Food.
 var WHATSAPP_NUMBER = '18098554926';
 var customerLocation = null;
@@ -1589,6 +1599,7 @@ function sendOrder() {
 
   var items = getCartItems();
   if (!items.length) { toast('El carrito esta vacio'); return; }
+  if (!authReady) { toast('Conectando... intenta de nuevo en un segundo'); return; }
 
   /* Validación local: evita enviar productos/precios que ya no existen en el menú.
      Importante: esto NO sustituye las reglas de seguridad de Firebase. */
