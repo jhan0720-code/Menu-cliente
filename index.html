@@ -1379,8 +1379,11 @@ function makeEmoji(name) {
 }
 
 function isSafeImageUrl(url) {
+  var str = String(url || '');
+  // Fotos guardadas desde el POS (JPEG comprimido en base64)
+  if (/^data:image\/(jpeg|jpg|png|webp|gif);base64,[A-Za-z0-9+\/=]+$/i.test(str)) return true;
   try {
-    var u = new URL(String(url), window.location.href);
+    var u = new URL(str, window.location.href);
     return u.protocol === 'https:' || u.protocol === 'http:';
   } catch(e) {
     return false;
